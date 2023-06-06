@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Process;
 
-Route::view('/', 'index');
+Route::get('/', fn () => \Inertia\Inertia::render('Home'));
 
 Route::get('/process/{process}', function (Process $process) {
     return view('process', [
