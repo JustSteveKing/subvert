@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\ExtractAudio;
@@ -10,42 +12,37 @@ use App\Models\Process;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Pipeline\Pipeline;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Pipeline;
 
 class ProcessVideo implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    public $timeout = 3600;
+    public int $timeout = 3600;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(public Process $process)
-    {
-        //
-    }
+    public function __construct(
+        public readonly Process $process,
+    ) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        app(Pipeline::class)
-            ->send($this->process)
-            ->through([
-                ExtractAudio::class,
-                GenerateSubtitles::class,
-                TranslateSubtitles::class,
-                GenerateChapters::class,
-                GenerateSummary::class,
-            ])
-            ->then(function (Process $process) {
-                $process->update([
-                    'status' => Status::COMPLETE,
-                ]);
-            });
+        Pipeline::send(
+            passable: $this->process,
+        )->through([
+            ExtractAudio::class,
+            GenerateSubtitles::class,
+            TranslateSubtitles::class,
+            GenerateChapters::class,
+            GenerateSummary::class,
+        ])->then(function (Process $process) {
+            $process->update([
+                'status' => Status::COMPLETE,
+            ]);
+        });
     }
 }

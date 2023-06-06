@@ -3,7 +3,7 @@ import axios from 'axios';
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
 import {resolvePageComponent} from 'laravel-vite-plugin/inertia-helpers';
-import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
+import {ZiggyVue} from '../../vendor/tightenco/ziggy/src/js/vue';
 
 window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
